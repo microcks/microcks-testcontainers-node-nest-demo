@@ -10,7 +10,7 @@ import { TestContainers } from "testcontainers";
 import { KafkaContainer, StartedKafkaContainer } from '@testcontainers/kafka';
 
 describe('AppController (e2e)', () => {
-  jest.setTimeout(100_000);
+  jest.setTimeout(150_000);
 
   let app: INestApplication;
 
@@ -41,7 +41,7 @@ describe('AppController (e2e)', () => {
 
   afterAll(async () => {
     // Now stop the app, the containers and the network.
-    await delay(750);
+    await delay(1000);
     console.log('Closing application...');
     await app.close();
     console.log('Stopping containers...');
