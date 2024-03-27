@@ -1,0 +1,40 @@
+name: build-verify-package
+on:
+  push:
+    paths-ignore:
+      #- '.github/**'
+      - '.gitignore'
+      - 'LICENSE'
+      - 'README*'
+  pull_request:
+    paths-ignore:
+      - '.github/**'
+      - '.gitignore'
+      - 'LICENSE'
+      - 'README*'
+
+jobs:
+  build-verify-package:
+    runs-on: ubuntu-latest
+    environment: Build
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set Node.js 18.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.x
+          cache: 'npm'
+
+      - name: Dependencies installation
+        run: npm install
+
+      - name: Run unit tests
+        run: npm run test
+
+      - name: Run e2e tests
+        run: npm run test:e2e
+
+      - name: Typescript compilation and Package build
+        run: npm run build
