@@ -26,46 +26,46 @@ describe('OrderService (e2e)', () => {
   let orderService: OrderService;
 
   beforeAll(async () => {
-    appPort = (await findFreePorts(1, {startPort: 3100, endPort: 3200}))[0];
-      await TestContainers.exposeHostPorts(appPort);
+    appPort = (await findFreePorts(1, {startPort: 3200, endPort: 3300}))[0];
+    await TestContainers.exposeHostPorts(appPort);
 
-      network = await new Network().start();
+    network = await new Network().start();
 
-      // Start kafka container.
-      kafkaContainer = await new KafkaContainer('confluentinc/cp-kafka:7.5.0')
-        .withNetwork(network)
-        .withNetworkAliases("kafka")
-        .withExposedPorts(9093)
-        .start();
+    // Start kafka container.
+    kafkaContainer = await new KafkaContainer('confluentinc/cp-kafka:7.5.0')
+      .withNetwork(network)
+      .withNetworkAliases("kafka")
+      .withExposedPorts(9093)
+      .start();
 
-      // Start ensemble and load artifacts.
-      ensemble = await new MicrocksContainersEnsemble(network, 'quay.io/microcks/microcks-uber:1.9.0')
-        .withMainArtifacts([
-          path.resolve(resourcesDir, 'order-events-asyncapi.yml'),
-          path.resolve(resourcesDir, 'order-service-openapi.yml'),
-          path.resolve(resourcesDir, 'apipastries-openapi.yml')
-        ])
-        .withSecondaryArtifacts([
-          path.resolve(resourcesDir, 'order-service-postman-collection.json'),
-          path.resolve(resourcesDir, 'apipastries-postman-collection.json')
-        ])
-        .withAsyncFeature()
-        .start();
+    // Start ensemble and load artifacts.
+    ensemble = await new MicrocksContainersEnsemble(network, 'quay.io/microcks/microcks-uber:1.9.0')
+      .withMainArtifacts([
+        path.resolve(resourcesDir, 'order-events-asyncapi.yml'),
+        path.resolve(resourcesDir, 'order-service-openapi.yml'),
+        path.resolve(resourcesDir, 'apipastries-openapi.yml')
+      ])
+      .withSecondaryArtifacts([
+        path.resolve(resourcesDir, 'order-service-postman-collection.json'),
+        path.resolve(resourcesDir, 'apipastries-postman-collection.json')
+      ])
+      .withAsyncFeature()
+      .start();
 
-      const moduleFixture: TestingModule = await Test.createTestingModule({
-        imports: [
-          ConfigModule.forRoot({
-            load: [() => ({
-              'pastries.baseurl': ensemble.getMicrocksContainer().getRestMockEndpoint('API Pastries', '0.0.1'),
-              'brokers.url': `localhost:${kafkaContainer.getMappedPort(9093)}`,
-            })],
-          }), AppModule],
-      }).compile();
-  
-      app = moduleFixture.createNestApplication();
-      await app.listen(appPort);
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [
+        ConfigModule.forRoot({
+          load: [() => ({
+            'pastries.baseurl': ensemble.getMicrocksContainer().getRestMockEndpoint('API Pastries', '0.0.1'),
+            'brokers.url': `localhost:${kafkaContainer.getMappedPort(9093)}`,
+          })],
+        }), AppModule],
+    }).compile();
 
-      orderService = moduleFixture.get(OrderService);
+    app = moduleFixture.createNestApplication();
+    await app.listen(appPort);
+
+    orderService = moduleFixture.get(OrderService);
   });
 
   afterAll(async () => {
