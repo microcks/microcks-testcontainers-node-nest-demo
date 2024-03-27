@@ -18,7 +18,7 @@ export class OrderEventListener implements OnApplicationShutdown {
     
     // Add to go through this low-level stuff to get ConfigService topic name.
     let kafka = client.createClient();
-    this.consumer = kafka.consumer({ groupId: 'order-service-consumer' })
+    this.consumer = kafka.consumer({ groupId: 'order-service-consumer' });
     this.consumer.subscribe({ topics: [configService.get<string>('order-events-reviewed.topic')], fromBeginning: false });
     this.consumer.run({
       eachMessage: async ({ topic, partition, message }) => {
@@ -31,6 +31,7 @@ export class OrderEventListener implements OnApplicationShutdown {
   onApplicationShutdown(signal: string) {
     console.log('Disconnecting Kafka consumer');
     this.consumer.disconnect();
+    this.client.close();
   }
 
   // Using @EventPattern is more elegant but cannot find how to use the ConfigService to dynamically
