@@ -86,7 +86,7 @@ describe('OrderService (e2e)', () => {
       filteredOperations: ['SUBSCRIBE orders-created'],
       runnerType: TestRunnerType.ASYNC_API_SCHEMA,
       testEndpoint: "kafka://kafka:9092/orders-created",
-      timeout: 3000
+      timeout: 2000
     };
 
     // Prepare an application Order.
@@ -102,7 +102,7 @@ describe('OrderService (e2e)', () => {
     // Launch the Microcks test and wait a bit to be sure it actually connects to Kafka.
     console.log("Launching the test");
     var testResultPromise: Promise<TestResult> = ensemble.getMicrocksContainer().testEndpoint(testRequest);
-    await delay(1000);
+    await delay(2000);
 
     // Invoke the application to create an order.
     var createdOrder = orderService.create(orderInfo);
