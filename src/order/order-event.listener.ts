@@ -4,10 +4,12 @@ import { ClientKafka, Ctx, EventPattern, KafkaContext, Payload, Transport } from
 
 import { OrderService } from './order.service';
 import { OrderEvent } from "./dto/order-event.dto";
+import { error } from 'console';
 
 @Controller('orders-listener')
 export class OrderEventListener implements OnApplicationShutdown {
   consumer: any;
+  alive: boolean = true;
 
   //constructor(private readonly orderService: OrderService) {}
 
@@ -18,7 +20,14 @@ export class OrderEventListener implements OnApplicationShutdown {
     
     // Add to go through this low-level stuff to get ConfigService topic name.
     let kafka = client.createClient();
-    this.consumer = kafka.consumer({ groupId: 'order-service-consumer' });
+    this.consumer = kafka.consumer({ groupId: 'order-service-consumer', 
+        retry: { retries: 5 },
+        restartOnFailure: 
+          (error: Error) => {
+            console.log('Restart on failure? ' + this.alive);
+            return new Promise<boolean>( resolve => this.alive);
+          }
+      });
 
     /*
     this.consumer.subscribe({ topics: [configService.get<string>('order-events-reviewed.topic')], fromBeginning: false })
@@ -48,7 +57,8 @@ export class OrderEventListener implements OnApplicationShutdown {
 
   async onApplicationShutdown(signal: string) {
     console.log('Disconnecting Kafka consumer');
-    this.consumer.disconnect();
+    this.alive = false;
+    await this.consumer.disconnect();
     await this.client.close();
   }
 
