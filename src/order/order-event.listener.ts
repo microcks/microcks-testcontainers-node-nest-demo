@@ -21,12 +21,14 @@ export class OrderEventListener implements OnApplicationShutdown {
     // Add to go through this low-level stuff to get ConfigService topic name.
     let kafka = client.createClient();
     this.consumer = kafka.consumer({ groupId: 'order-service-consumer', 
-        retry: { retries: 5 },
-        restartOnFailure: 
-          (error: Error) => {
-            console.log('Restart on failure? ' + this.alive);
-            return new Promise<boolean>( resolve => this.alive);
-          }
+        retry: {
+          retries: 5,
+          restartOnFailure: 
+            (error: Error) => {
+              console.log('Restart on failure? ' + this.alive);
+              return Promise.resolve(this.alive);
+            }
+        }
       });
 
     /*
