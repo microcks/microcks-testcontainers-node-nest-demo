@@ -56,7 +56,6 @@ describe('OrderController (e2e)', () => {
     // Now stop the app, the containers and the network.
     console.log('Closing application...');
     await app.close();
-    await delay(500);
     console.log('Stopping containers...');
     await container.stop();
     await kafkaContainer.stop();
@@ -78,8 +77,4 @@ describe('OrderController (e2e)', () => {
     expect(testResult.testCaseResults.length).toBe(1);
     expect(testResult.testCaseResults[0].testStepResults.length).toBe(2);
   });
-
-  function delay(ms: number) {
-    return new Promise( resolve => setTimeout(resolve, ms) );
-  }
 });

@@ -11,37 +11,20 @@ export class OrderEventListener implements OnApplicationShutdown {
   consumer: any;
   alive: boolean = true;
 
-  //constructor(private readonly orderService: OrderService) {}
-
   constructor(configService: ConfigService,
       private readonly orderService: OrderService,
       @Inject('ORDER_SERVICE') private readonly client: ClientKafka) {
 
-    
+  
     // Add to go through this low-level stuff to get ConfigService topic name.
     let kafka = client.createClient();
     this.consumer = kafka.consumer({ groupId: 'order-service-consumer', 
         retry: {
-          retries: 5,
           restartOnFailure: 
-            (error: Error) => {
-              console.log('Restart on failure? ' + this.alive);
-              return Promise.resolve(this.alive);
-            }
+            // No need to restart if application has beeb shutdown
+            (error: Error) => { return Promise.resolve(this.alive); }
         }
       });
-
-    /*
-    this.consumer.subscribe({ topics: [configService.get<string>('order-events-reviewed.topic')], fromBeginning: false })
-      .then(result => {
-        this.consumer.run({
-          eachMessage: async ({ topic, partition, message }) => {
-            console.log(`Received OrderEvent: ${message.value.toString()}`);  
-            this.orderService.updateReviewedOrder(JSON.parse(message.value.toString()) as OrderEvent);
-          },
-        })
-      });
-    */
 
     const run = async () => {
       await this.consumer.connect();
