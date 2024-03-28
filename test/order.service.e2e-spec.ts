@@ -72,6 +72,7 @@ describe('OrderService (e2e)', () => {
     // Now stop the app, the containers and the network.
     console.log('Closing application...');
     await app.close();
+    await delay(500);
     console.log('Stopping containers...');
     await ensemble.stop();
     await kafkaContainer.stop();
