@@ -4,7 +4,7 @@
   "description": "",
   "author": "",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -31,7 +31,7 @@
     "rxjs": "^7.8.1"
   },
   "devDependencies": {
-    "@microcks/microcks-testcontainers": "0.2.2",
+    "@microcks/microcks-testcontainers": "0.2.3",
     "@nestjs/cli": "^10.3.2",
     "@nestjs/schematics": "^10.1.1",
     "@nestjs/testing": "^10.3.4",
