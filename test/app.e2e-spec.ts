@@ -44,6 +44,7 @@ describe('AppController (e2e)', () => {
     await delay(1000);
     console.log('Closing application...');
     await app.close();
+    await delay(1000);
     console.log('Stopping containers...');
     await kafkaContainer.stop();
   });
