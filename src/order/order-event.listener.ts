@@ -19,13 +19,15 @@ export class OrderEventListener implements OnApplicationShutdown {
     // Add to go through this low-level stuff to get ConfigService topic name.
     let kafka = client.createClient();
     this.consumer = kafka.consumer({ groupId: 'order-service-consumer' });
-    this.consumer.subscribe({ topics: [configService.get<string>('order-events-reviewed.topic')], fromBeginning: false });
-    this.consumer.run({
-      eachMessage: async ({ topic, partition, message }) => {
-        console.log(`Received OrderEvent: ${message.value.toString()}`);  
-        this.orderService.updateReviewedOrder(JSON.parse(message.value.toString()) as OrderEvent);
-      },
-    })
+    this.consumer.subscribe({ topics: [configService.get<string>('order-events-reviewed.topic')], fromBeginning: false })
+      .then(result => {
+        this.consumer.run({
+          eachMessage: async ({ topic, partition, message }) => {
+            console.log(`Received OrderEvent: ${message.value.toString()}`);  
+            this.orderService.updateReviewedOrder(JSON.parse(message.value.toString()) as OrderEvent);
+          },
+        })
+      });
   }
 
   onApplicationShutdown(signal: string) {
