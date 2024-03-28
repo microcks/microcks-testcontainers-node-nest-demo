@@ -46,10 +46,10 @@ export class OrderEventListener implements OnApplicationShutdown {
     run().catch(e => console.error(`[OrderEventListener] ${e.message}`, e))
   }
 
-  onApplicationShutdown(signal: string) {
+  async onApplicationShutdown(signal: string) {
     console.log('Disconnecting Kafka consumer');
     this.consumer.disconnect();
-    this.client.close();
+    await this.client.close();
   }
 
   // Using @EventPattern is more elegant but cannot find how to use the ConfigService to dynamically
