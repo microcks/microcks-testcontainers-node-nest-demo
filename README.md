@@ -1,5 +1,7 @@
 # Microcks Testcontainers NestJS Demo
 
+![Microcks Testcontainers Node/NestJS demo](./assets/microcks-testcontainers-node-nest-demo.png)
+
 This application is a sample on how to integrate Microcks via  [Testcontainers]([https://www.testcontainers.com]) within your development inner-loop.
 
 [NestJS](https://nestjs.com/) is a progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.
