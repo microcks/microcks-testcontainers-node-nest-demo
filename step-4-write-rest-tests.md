@@ -73,6 +73,8 @@ Then, we can simply proceed and execute some tests:
   });
 ```
 
+> You can execute this test from your IDE or from the terminal using the `npm run test --runTestsByPath src/pastry/pastry.service.spec.ts` command.
+
 If you run this test, it should pass and that means we have successfully configured the application to start with all the required containers
 and that they're correctly wired to the application. Within this test:
 * We're reusing the data that comes from the examples in the `Pastry API` OpenAPI specification and Postman collection.
@@ -119,6 +121,8 @@ we'll focus on testing the `OrderController` component of our application:
   });
 ```
 
+> You can execute this test from the terminal using the `npm run test:e2e --runTestsByPath test/orders.api.e2e-spec.ts` command.
+
 Here, we're using a Microcks-provided `TestRequest` object that allows us to specify to Microcks the scope of the conformance
 test we want to run:
 * We ask for testing our endpoint against the service interface of `Order Service API` in version `0.1.0`.
@@ -147,6 +151,64 @@ sequenceDiagram
 
 Our `OrderController` development is technically correct: all the JSON and HTTP serialization layers have been tested!
 
+
+## Third Test - Verify the business conformance of Order Service API
+
+The above section allows us to validate the technical conformance but not the business one! Imagine we forgot to record all the
+requested products in the order or change the total price in resulting order. This could raise some issues!
+
+Microcks allows to execute business conformance test by leveraging Postman Collection. If you're familiar with Postman Collection
+scripts, you'll open the `order-service-postman-collection.json` file and find some snippets like:
+
+```jshelllanguage
+pm.test("Correct products and quantities in order", function () {
+    var order = pm.response.json();
+    var productQuantities = order.productQuantities;
+    pm.expect(productQuantities).to.be.an("array");
+    pm.expect(productQuantities.length).to.eql(requestProductQuantities.length);
+    for (let i=0; i<requestProductQuantities.length; i++) {
+        var productQuantity = productQuantities[i];
+        var requestProductQuantity = requestProductQuantities[i];
+        pm.expect(productQuantity.productName).to.eql(requestProductQuantity.productName);
+    }
+});
+```
+
+You can now validate this from your Javascript Unit Test as well! Let's review the test class `orders.api.postman.e2e-spec.ts` 
+under `test`:
+
+```ts
+  it ('should conform to Postman rules', async () => {
+    var testRequest: TestRequest = {
+      serviceId: "Order Service API:0.1.0",
+      runnerType: TestRunnerType.POSTMAN,
+      testEndpoint: "http://host.testcontainers.internal:" + appPort,
+      timeout: 3000
+    };
+
+    var testResult = await ensemble.getMicrocksContainer().testEndpoint(testRequest);
+
+    console.log(JSON.stringify(testResult, null, 2));
+
+    expect(testResult.success).toBe(true);
+    expect(testResult.testCaseResults.length).toBe(1);
+    expect(testResult.testCaseResults[0].testStepResults.length).toBe(2);
+  });
+```
+
+> You can execute this test from the terminal using the `npm run test:e2e --runTestsByPath test/orders.api.postman.e2e-spec.ts` command.
+
+This snippet typically describes business constraints telling that a valid order response should have unchanged product and quantities. 
+
+Comparing to the code in previous section, the only change here is that we asked Microcks to use a `Postman` runner
+for executing our conformance test. What happens under the hood is now that Microcks is re-using the collection snippets
+to put some constraints on API response and check their conformance.
+
+The test sequence is exactly the same as in the previous section. The difference here lies in the type of response validation: Microcks
+reuses Postman collection constraints.
+
+You're now sure that beyond the technical conformance, the `Order Service` also behaves as expected regarding business 
+constraints. 
 
 ### 
 [Next](step-5-write-async-tests.md)
