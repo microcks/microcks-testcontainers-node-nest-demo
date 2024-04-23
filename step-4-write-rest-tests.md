@@ -102,6 +102,11 @@ we'll focus on testing the `OrderController` component of our application:
 
 ![Order Controller Test](./assets/test-order-service-api.png)
 
+Microcks Testcontainer integration provides another approach by letting you reuse the OpenAPI specification directly in your test suite,
+without having to write assertions and validation of messages for API interaction.
+
+Let's review the test class `orders.api.e2e-spec.ts` under `test`:
+
 ```ts
   it('should conform to OpenAPI spec', async () => {
     var testRequest: TestRequest = {
