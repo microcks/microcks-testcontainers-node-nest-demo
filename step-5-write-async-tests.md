@@ -65,9 +65,7 @@ The first important thing to notice is the setup phase of the test that happens 
 ```
 
 This is where we're launching the Microcks Testcontainers module and configure it with the resources we need. Here we're loading 
-the Pastry API [`apipastries-openapi.yml`](test/resources/apipastries-openapi.yml) OpenAPI specification as well as a complementary
-[`apipastries-postman-collection.json`](test/resourcesapipastries-postman-collection.json) Postman Collection that contains additional 
-examples.
+the `Pastry API` resources, the `Order Service API` resources as well as the `Order ` .
 
 We're also configuring the application to use a REST mock endpoint provided by the Microcks container for this API.
 
