@@ -39,5 +39,10 @@ jobs:
      #     export DEBUG=testcontainers*
      #     npm run test:e2e
 
+      - name: Run e2e tests
+        run: |
+          npm run test:e2e --runTestsByPath test/orders.api.e2e-spec.ts
+          npm run test:e2e --runTestsByPath test/orders.api.postman.e2e-spec.ts
+
       - name: Typescript compilation and Package build
         run: npm run build
