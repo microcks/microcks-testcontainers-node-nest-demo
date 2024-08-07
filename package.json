@@ -20,7 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json --runInBand"
   },
   "dependencies": {
-    "@nestjs/common": "^10.3.4",
+    "@nestjs/common": "^10.3.10",
     "@nestjs/config": "^3.1.1",
     "@nestjs/core": "^10.3.8",
     "@nestjs/mapped-types": "*",
@@ -31,7 +31,7 @@
     "rxjs": "^7.8.1"
   },
   "devDependencies": {
-    "@microcks/microcks-testcontainers": "0.2.3",
+    "@microcks/microcks-testcontainers": "0.2.5",
     "@nestjs/cli": "^10.3.2",
     "@nestjs/schematics": "^10.1.1",
     "@nestjs/testing": "^10.3.4",
@@ -40,9 +40,9 @@
     "@types/jest": "^29.5.2",
     "@types/node": "^20.14.5",
     "@types/supertest": "^2.0.12",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
-    "eslint": "^8.42.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.1",
+    "@typescript-eslint/parser": "^8.0.1",
+    "eslint": "^9.8.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
     "find-free-ports": "^3.1.1",
