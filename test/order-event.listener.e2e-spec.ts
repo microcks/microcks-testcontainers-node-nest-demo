@@ -12,9 +12,7 @@ import { OrderNotFoundException } from "../src/order/order-not-found.error";
 
 import { Network, StartedNetwork, TestContainers } from "testcontainers";
 import { KafkaContainer, StartedKafkaContainer } from '@testcontainers/kafka';
-import { MicrocksContainersEnsemble, StartedMicrocksContainersEnsemble, TestRequest, TestResult, TestRunnerType } from '@microcks/microcks-testcontainers';
-
-
+import { MicrocksContainersEnsemble, StartedMicrocksContainersEnsemble } from '@microcks/microcks-testcontainers';
 
 
 describe('OrderEventListener (e2e)', () => {
@@ -43,7 +41,7 @@ describe('OrderEventListener (e2e)', () => {
       .start();
 
     // Start ensemble and load artifacts.
-    ensemble = await new MicrocksContainersEnsemble(network, 'quay.io/microcks/microcks-uber:1.9.0')
+    ensemble = await new MicrocksContainersEnsemble(network, 'quay.io/microcks/microcks-uber:nightly')
       .withMainArtifacts([
         path.resolve(resourcesDir, 'order-events-asyncapi.yml'),
         path.resolve(resourcesDir, 'order-service-openapi.yml'),

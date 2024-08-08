@@ -34,7 +34,7 @@ The first important thing to notice is the setup phase of the test that happens 
       .start();
 
     // Start ensemble and load artifacts.
-    ensemble = await new MicrocksContainersEnsemble(network, 'quay.io/microcks/microcks-uber:1.9.0')
+    ensemble = await new MicrocksContainersEnsemble(network, 'quay.io/microcks/microcks-uber:1.10.0')
       .withMainArtifacts([
         path.resolve(resourcesDir, 'order-events-asyncapi.yml'),
         path.resolve(resourcesDir, 'order-service-openapi.yml'),
@@ -87,7 +87,7 @@ Then, we can simply proceed and execute some tests:
       customerId: "123-456-789",
       productQuantities: [
         { productName: "Millefeuille", quantity: 1 },
-        { productName: "Paris-Brest", quantity: 1 }
+        { productName: "Eclair Cafe", quantity: 1 }
       ],
       totalPrice: 8.4
     }

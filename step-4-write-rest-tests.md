@@ -19,7 +19,7 @@ The first important thing to notice is the setup phase of the test that happens 
 ```ts
   beforeAll(async () => {
     // Start container and load artifacts.
-    container = await new MicrocksContainer('quay.io/microcks/microcks-uber:1.9.0-native')
+    container = await new MicrocksContainer('quay.io/microcks/microcks-uber:1.10.0-native')
       .withMainArtifacts([path.resolve(resourcesDir, 'apipastries-openapi.yml')])
       .withSecondaryArtifacts([path.resolve(resourcesDir, 'apipastries-postman-collection.json')])
       .start();

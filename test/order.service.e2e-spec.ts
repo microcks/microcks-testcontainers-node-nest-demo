@@ -39,7 +39,7 @@ describe('OrderService (e2e)', () => {
       .start();
 
     // Start ensemble and load artifacts.
-    ensemble = await new MicrocksContainersEnsemble(network, 'quay.io/microcks/microcks-uber:1.9.0')
+    ensemble = await new MicrocksContainersEnsemble(network, 'quay.io/microcks/microcks-uber:1.10.0-native')
       .withMainArtifacts([
         path.resolve(resourcesDir, 'order-events-asyncapi.yml'),
         path.resolve(resourcesDir, 'order-service-openapi.yml'),
@@ -94,7 +94,7 @@ describe('OrderService (e2e)', () => {
       customerId: "123-456-789",
       productQuantities: [
         { productName: "Millefeuille", quantity: 1 },
-        { productName: "Paris-Brest", quantity: 1 }
+        { productName: "Eclair Cafe", quantity: 1 }
       ],
       totalPrice: 8.4
     }

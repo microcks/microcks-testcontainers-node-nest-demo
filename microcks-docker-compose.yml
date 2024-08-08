@@ -16,7 +16,7 @@ services:
       - --keycloakClientSecret=bar
 
   microcks:
-    image: quay.io/microcks/microcks-uber:1.9.0-native
+    image: quay.io/microcks/microcks-uber:1.10.0-native
     ports:
       - "9090:8080"
     environment:
@@ -28,7 +28,7 @@ services:
       - microcks
     ports:
       - "9091:8081"
-    image: quay.io/microcks/microcks-uber-async-minion:1.9.0
+    image: quay.io/microcks/microcks-uber-async-minion:1.10.0
     container_name: microcks-async-minion
     restart: on-failure
     environment:

@@ -43,6 +43,8 @@ jobs:
         run: |
           npm run test:e2e --runTestsByPath --detectOpenHandles --forceExit test/orders.api.e2e-spec.ts
           npm run test:e2e --runTestsByPath --detectOpenHandles --forceExit test/orders.api.postman.e2e-spec.ts
+          npm run test:e2e --runTestsByPath --detectOpenHandles --forceExit test/order.service.e2e-spec.ts
+          npm run test:e2e --runTestsByPath --detectOpenHandles --forceExit test/order-event.listener.e2e-spec.ts
 
       - name: Typescript compilation and Package build
         run: npm run build

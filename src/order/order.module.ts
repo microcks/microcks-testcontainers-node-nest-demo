@@ -21,7 +21,7 @@ import { OrderEventPublisher } from './order-event.publisher';
       {
         name: 'ORDER_SERVICE',
         imports: [ConfigModule],
-        useFactory:async(configService: ConfigService) => ({
+        useFactory: async(configService: ConfigService) => ({
           transport: Transport.KAFKA,
           options: {
             client: {
@@ -32,7 +32,8 @@ import { OrderEventPublisher } from './order-event.publisher';
               groupId: 'order-service'
             },
             producer: {
-              allowAutoTopicCreation: true
+              allowAutoTopicCreation: true,
+              metadataMaxAge: 100
             }  
           }
         }),

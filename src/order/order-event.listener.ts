@@ -1,10 +1,9 @@
 import { Controller, Inject, OnApplicationShutdown } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ClientKafka, Ctx, EventPattern, KafkaContext, Payload, Transport } from "@nestjs/microservices";
+import { ClientKafka } from "@nestjs/microservices";
 
 import { OrderService } from './order.service';
 import { OrderEvent } from "./dto/order-event.dto";
-import { error } from 'console';
 
 @Controller('orders-listener')
 export class OrderEventListener implements OnApplicationShutdown {
@@ -21,7 +20,7 @@ export class OrderEventListener implements OnApplicationShutdown {
     this.consumer = kafka.consumer({ groupId: 'order-service-consumer', 
         retry: {
           restartOnFailure: 
-            // No need to restart if application has beeb shutdown
+            // No need to restart if application has been shutdown
             (error: Error) => { return Promise.resolve(this.alive); }
         }
       });

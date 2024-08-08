@@ -31,7 +31,7 @@ describe('OrderController (e2e)', () => {
 
     // Start ensemble and load artifacts.
     network = await new Network().start();
-    ensemble = await new MicrocksContainersEnsemble(network, 'quay.io/microcks/microcks-uber:1.9.0')
+    ensemble = await new MicrocksContainersEnsemble(network, 'quay.io/microcks/microcks-uber:latest')
       .withMainArtifacts([
         path.resolve(resourcesDir, 'order-service-openapi.yml'),
         path.resolve(resourcesDir, 'apipastries-openapi.yml')
