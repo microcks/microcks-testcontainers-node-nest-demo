@@ -32,7 +32,7 @@
   },
   "devDependencies": {
     "@microcks/microcks-testcontainers": "0.2.5",
-    "@nestjs/cli": "^10.3.2",
+    "@nestjs/cli": "^10.4.4",
     "@nestjs/schematics": "^10.1.1",
     "@nestjs/testing": "^10.3.4",
     "@testcontainers/kafka": "^10.7.2",
