@@ -50,9 +50,16 @@ describe('PastryService', () => {
     pastry = await service.getPastry('Eclair Chocolat');
     expect(pastry.name).toBe("Eclair Chocolat");
     expect(pastry.status).toBe("unknown");
+
+    // Check that the mock API has really been invoked.
+    let mockInvoked: boolean = await container.verify("API Pastries", "0.0.1");
+    expect(mockInvoked).toBe(true);
   });
 
   it('should retrieve pastries by size', async () => {
+    // Get the number of invocations before our test.
+    let beforeMockInvocations: number = await container.getServiceInvocationsCount("API Pastries", "0.0.1");
+
     let pastries: Pastry[] = await service.getPastries('S');
     expect(pastries.length).toBe(1);
 
@@ -61,5 +68,9 @@ describe('PastryService', () => {
 
     pastries = await service.getPastries('L');
     expect(pastries.length).toBe(2);
+
+    // Check our mock API has been invoked the correct number of times.
+    let afterMockInvocations: number = await container.getServiceInvocationsCount("API Pastries", "0.0.1");
+    expect(afterMockInvocations - beforeMockInvocations).toBe(3);
   });
 });

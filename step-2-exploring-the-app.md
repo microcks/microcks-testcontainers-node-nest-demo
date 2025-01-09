@@ -6,7 +6,7 @@ but also relies on an existing API we have [introduced in a previous post](https
 
 ![Order Service ecosystem](./assets/order-service-ecosystem.png)
 
-The `Order Service` application has been designed around 5 main components that are directly mapped on Spring Boot components and classes:
+The `Order Service` application has been designed around 5 main components that are directly mapped on NestJS components and classes:
 * The [`OrderController`](src/order/order.controller.ts) is responsible for exposing an `Order API` to the outer world.
 * The [`OrderService`](src/order/order.service.ts) is responsible for implementing the business logic around the creation of orders.
 * The [`PastryAPIClient`](src/pastry/pastry.service.ts) is responsible for calling the `Pastry API` in *Product Domain* and get details or list of pastries.

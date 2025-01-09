@@ -10,7 +10,7 @@ import { OrderService } from "../src/order/order.service";
 
 import { Network, StartedNetwork, TestContainers } from "testcontainers";
 import { KafkaContainer, StartedKafkaContainer } from '@testcontainers/kafka';
-import { MicrocksContainersEnsemble, StartedMicrocksContainersEnsemble, TestRequest, TestResult, TestRunnerType } from '@microcks/microcks-testcontainers';
+import { EventMessage, MicrocksContainersEnsemble, StartedMicrocksContainersEnsemble, TestRequest, TestResult, TestRunnerType, UnidirectionalEvent } from '@microcks/microcks-testcontainers';
 
 
 describe('OrderService (e2e)', () => {
@@ -117,6 +117,20 @@ describe('OrderService (e2e)', () => {
     expect(testResult.success).toBe(true);
     expect(testResult.testCaseResults.length).toBeGreaterThan(0);
     expect(testResult.testCaseResults[0].testStepResults.length).toBe(1);
+
+    // Check the content of the emitted event, read from Kafka topic.
+    let events: UnidirectionalEvent[] = await ensemble.getMicrocksContainer().getEventMessagesForTestCase(testResult, "SUBSCRIBE orders-created");
+    
+    expect(events.length).toBe(1);
+
+    let message: EventMessage = events[0].eventMessage;
+    let orderEvent = JSON.parse(message.content);
+
+    expect(orderEvent.changeReason).toBe('Creation');
+    let order = orderEvent.order;
+    expect(order.customerId).toBe("123-456-789");
+    expect(order.totalPrice).toBe(8.4);
+    expect(order.productQuantities.length).toBe(2);
   });
 
   function delay(ms: number) {

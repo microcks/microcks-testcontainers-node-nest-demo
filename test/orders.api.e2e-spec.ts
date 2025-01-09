@@ -8,7 +8,7 @@ import { AppModule } from '../src/app.module';
 
 import { TestContainers } from "testcontainers";
 import { KafkaContainer, StartedKafkaContainer } from '@testcontainers/kafka';
-import { MicrocksContainer, StartedMicrocksContainer, TestRequest, TestRunnerType } from '@microcks/microcks-testcontainers';
+import { MicrocksContainer, RequestResponsePair, StartedMicrocksContainer, TestRequest, TestRunnerType } from '@microcks/microcks-testcontainers';
 
 describe('OrderController (e2e)', () => {
   jest.setTimeout(180_000);
@@ -76,5 +76,41 @@ describe('OrderController (e2e)', () => {
     expect(testResult.success).toBe(true);
     expect(testResult.testCaseResults.length).toBe(1);
     expect(testResult.testCaseResults[0].testStepResults.length).toBe(2);
+  });
+
+  it('should conform to OpenAPI spec and Business rules', async () => {
+    var testRequest: TestRequest = {
+      serviceId: "Order Service API:0.1.0",
+      runnerType: TestRunnerType.OPEN_API_SCHEMA,
+      testEndpoint: "http://host.testcontainers.internal:" + appPort,
+      timeout: 3000
+    };
+
+    var testResult = await container.testEndpoint(testRequest);
+
+    console.log(JSON.stringify(testResult, null, 2));
+
+    expect(testResult.success).toBe(true);
+    expect(testResult.testCaseResults.length).toBe(1);
+    expect(testResult.testCaseResults[0].testStepResults.length).toBe(2);
+
+    // You may also check business conformance.
+    let pairs: RequestResponsePair[] = await container.getMessagesForTestCase(testResult, "POST /orders");
+
+    for (let i=0; i<pairs.length; i++) {
+      const pair = pairs[i];
+      if (pair.response.status === "201") {
+        const requestPQS = JSON.parse(pair.request.content).productQuantities;
+        const responsePQS = JSON.parse(pair.response.content).productQuantities;
+        
+        expect(responsePQS).toBeDefined();
+        expect(responsePQS.length).toBe(requestPQS.length);
+        for (let j=0; j<requestPQS.length; j++) {
+          const requestPQ = requestPQS[j];
+          const responsePQ = responsePQS[j];
+          expect(responsePQ.productName).toBe(requestPQ.productName);
+        }
+      }
+    }
   });
 });

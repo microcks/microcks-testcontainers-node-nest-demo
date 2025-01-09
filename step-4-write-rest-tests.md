@@ -95,6 +95,61 @@ sequenceDiagram
     PastryAPIClient-->>-PastryAPIClientTests: List<Pastry>
 ```
 
+### 🎁 Bonus step - Check the mock endpoints are actually used
+
+While the above test is a good start, it doesn't actually check that the mock endpoints are being used. In a more complex application, it's 
+possible that the client is not correctly configured or use some cache or other mechanism that would bypass the mock endpoints. 
+In order to check that you can actually use the `verify()` method available on the Microcks container:
+
+```ts
+it('should retrieve pastry by name', async () => {
+  let pastry: Pastry = await service.getPastry('Millefeuille');
+  expect(pastry.name).toBe("Millefeuille");
+  expect(pastry.status).toBe("available");
+
+  pastry = await service.getPastry('Eclair Cafe');
+  expect(pastry.name).toBe("Eclair Cafe");
+  expect(pastry.status).toBe("available");
+
+  pastry = await service.getPastry('Eclair Chocolat');
+  expect(pastry.name).toBe("Eclair Chocolat");
+  expect(pastry.status).toBe("unknown");
+
+  // Check that the mock API has really been invoked.
+  let mockInvoked: boolean = await container.verify("API Pastries", "0.0.1");
+  expect(mockInvoked).toBe(true);
+});
+```
+
+`verify()` takes the target API name and version as arguments and returns a boolean indicating if the mock has been invoked. 
+This is a good way to ensure that the mock endpoints are actually being used in your test.
+
+If you need finer-grained control, you can also check the number of invocations with `getServiceInvocationsCount()`. This way you can check 
+that the mock has been invoked the correct number of times:
+
+```ts
+it('should retrieve pastries by size', async () => {
+  // Get the number of invocations before our test.
+  let beforeMockInvocations: number = await container.getServiceInvocationsCount("API Pastries", "0.0.1");
+
+  let pastries: Pastry[] = await service.getPastries('S');
+  expect(pastries.length).toBe(1);
+
+  pastries = await service.getPastries('M');
+  expect(pastries.length).toBe(2);
+
+  pastries = await service.getPastries('L');
+  expect(pastries.length).toBe(2);
+
+  // Check our mock API has been invoked the correct number of times.
+  let afterMockInvocations: number = await container.getServiceInvocationsCount("API Pastries", "0.0.1");
+  expect(afterMockInvocations - beforeMockInvocations).toBe(3);
+});
+```
+
+This is a super powerful way to ensure that your application logic (caching, no caching, etc.) is correctly implemented and 
+use the mock endpoints when required 🎉
+
 ## Second Test - Verify the technical conformance of Order Service API
 
 The 2nd thing we want to validate is the conformance of the `Order API` we'll expose to consumers. In this section and the next one,
@@ -133,7 +188,7 @@ test we want to run:
 * We ask for testing our endpoint against the service interface of `Order Service API` in version `0.1.0`.
   These are the identifiers found in the `order-service-openapi.yml` file.
 * We ask Microcks to validate the `OpenAPI Schema` conformance by specifying a `runnerType`.
-* We ask Microcks to validate the localhost endpoint on the dynamic port provided by the Spring Test (we use the `host.testcontainers.internal` alias for that).
+* We ask Microcks to validate the localhost endpoint on the dynamic port provided by the `beforeAll()` function (we use the `host.testcontainers.internal` alias for that).
 
 Finally, we're retrieving a `TestResult` from Microcks containers, and we can assert stuffs on this result, checking it's a success.
 
@@ -214,6 +269,57 @@ reuses Postman collection constraints.
 
 You're now sure that beyond the technical conformance, the `Order Service` also behaves as expected regarding business 
 constraints. 
+
+### 🎁 Bonus step - Verify the business conformance of Order Service API in pure JS/TS
+
+Even if the Postman Collection runner is a great way to validate business conformance, you may want to do it in pure JavaScript. 
+This is possible by retrieving the messages exchanged during the test and checking their content. Let's review the 
+`should conform to OpenAPI spec and Business rules` test under `test/orders.api.e2e-spec.ts`:
+
+```ts
+it('should conform to OpenAPI spec and Business rules', async () => {
+  var testRequest: TestRequest = {
+    serviceId: "Order Service API:0.1.0",
+    runnerType: TestRunnerType.OPEN_API_SCHEMA,
+    testEndpoint: "http://host.testcontainers.internal:" + appPort,
+    timeout: 3000
+  };
+
+  var testResult = await container.testEndpoint(testRequest);
+
+  console.log(JSON.stringify(testResult, null, 2));
+
+  expect(testResult.success).toBe(true);
+  expect(testResult.testCaseResults.length).toBe(1);
+  expect(testResult.testCaseResults[0].testStepResults.length).toBe(2);
+
+  // You may also check business conformance.
+  let pairs: RequestResponsePair[] = await container.getMessagesForTestCase(testResult, "POST /orders");
+
+  for (let i=0; i<pairs.length; i++) {
+    const pair = pairs[i];
+    if (pair.response.status === "201") {
+      const requestPQS = JSON.parse(pair.request.content).productQuantities;
+      const responsePQS = JSON.parse(pair.response.content).productQuantities;
+      
+      expect(responsePQS).toBeDefined();
+      expect(responsePQS.length).toBe(requestPQS.length);
+      for (let j=0; j<requestPQS.length; j++) {
+        const requestPQ = requestPQS[j];
+        const responsePQ = responsePQS[j];
+        expect(responsePQ.productName).toBe(requestPQ.productName);
+      }
+    }
+  }
+});
+```
+
+This test is a bit more complex than the previous ones. It first asks for an OpenAPI conformance test to be launched and then retrieves 
+the messages to check business conformance, following the same logic that was implemented into the Postman Collection snippet.
+
+It uses the `getMessagesForTestCase()` method to retrieve the messages exchanged during the test and then checks the content. While this 
+is done in pure JavaScript here, you may use the tool or library of your choice like [Cucumber](https://cucumber.io/docs/installation/javascript/) 
+or others.
 
 ### 
 [Next](step-5-write-async-tests.md)

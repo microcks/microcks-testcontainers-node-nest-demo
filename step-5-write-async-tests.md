@@ -151,8 +151,42 @@ sequenceDiagram
 ```
 
 Because the test is a success, it means that Microcks has received an `OrderEvent` on the specified topic and has validated the message
-conformance with the AsyncAPI contract or this event-driven architecture. So you're sure that all your Spring Boot configuration, Kafka JSON serializer
+conformance with the AsyncAPI contract or this event-driven architecture. So you're sure that all your NestJS configuration, Kafka JSON serializer
 configuration and network communication are actually correct!
+
+### 🎁 Bonus step - Verify the event content
+
+So you're now sure that an event has been sent to Kafka and that it's valid regarding the AsyncAPI contract. But what about the content 
+of this event? If you want to go further and check the content of the event, you can do it by asking Microcks the events read during the 
+test execution and actually check their content. This can be done adding a few lines of code:
+
+```ts
+it ('should publish an Event when Order is created', async () => {
+  // [...] Unchanged comparing previous step.
+
+  // Get the Microcks test result.
+  var testResult = await testResultPromise;
+
+  // [...] Unchanged comparing previous step.
+
+  // Check the content of the emitted event, read from Kafka topic.
+  let events: UnidirectionalEvent[] = await ensemble.getMicrocksContainer().getEventMessagesForTestCase(testResult, "SUBSCRIBE orders-created");
+  
+  expect(events.length).toBe(1);
+
+  let message: EventMessage = events[0].eventMessage;
+  let orderEvent = JSON.parse(message.content);
+
+  expect(orderEvent.changeReason).toBe('Creation');
+  let order = orderEvent.order;
+  expect(order.customerId).toBe("123-456-789");
+  expect(order.totalPrice).toBe(8.4);
+  expect(order.productQuantities.length).toBe(2);
+});
+```
+
+Here, we're using the `getEventMessagesForTestCase()` method on the Microcks container to retrieve the messages read during the test execution. 
+Using the wrapped `EventMessage` class, we can then check the content of the message and assert that it matches the order we've created.
 
 ## Second Test - Verify our OrderEventListener is processing events
 
@@ -164,7 +198,41 @@ The final thing we want to test here is that our `OrderEventListener` component 
 for consuming messages, for de-serializing them into correct Java objects and for triggering the processing on the `OrderService`.
 That's a lot to do and can be quite complex! But things remain very simple with Microcks 😉
 
+Let's review the test spec `order-event.listener.e2e-spec.ts` under `test`.
 
+```ts
+it ('should consume an Event and process Service', async () => {
+  let retry = 0;
+
+  while (retry < 10) {
+    try {
+      let order = orderService.getOrder('123-456-789');
+      if (orderIsValid(order)) {
+        break;
+      }
+    } catch (e) {
+      if (e instanceof OrderNotFoundException) {
+        // Continue until we get the end of the poll loop.
+      } else {
+        // Exit here.
+        throw e;
+      }
+    }
+    await delay(500);
+    retry++
+  }
+});
+
+function orderIsValid(order: Order) : boolean {
+  if (order) {
+    expect(order.customerId).toBe('lbroudoux');
+    expect(order.status).toBe(OrderStatus.VALIDATED);
+    expect(order.productQuantities.length).toBe(2);
+    return true;
+  }
+  return false;
+}
+```
 
 To fully understand this test, remember that as soon as you're launching the test, we start Kafka and Microcks containers and that Microcks
 is immediately starting publishing mock messages on this broker. So this test actually starts with a waiting loop, just checking that the
