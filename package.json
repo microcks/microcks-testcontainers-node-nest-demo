@@ -38,7 +38,7 @@
     "@testcontainers/kafka": "^10.10.4",
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.14",
-    "@types/node": "^20.14.5",
+    "@types/node": "^24.3.1",
     "@types/supertest": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "^8.28.0",
     "@typescript-eslint/parser": "^8.0.1",
