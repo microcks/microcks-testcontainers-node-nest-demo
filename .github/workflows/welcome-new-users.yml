@@ -8,9 +8,12 @@ name: Welcome New Users with Thanks and Tip non-stargazers ;-)
 on:
   issues:
     types: [opened]
-  pull_request:
+  pull_request_target:
     types: [opened, closed]
 
+# Explicitly disable all default GITHUB_TOKEN permissions at the workflow level.
+# Each job then declares only the minimal required permissions (principle of least privilege),
+# e.g., `issues: write` for posting comments. This improves security.
 permissions: {}
 
 jobs:
@@ -43,10 +46,10 @@ jobs:
             🙏 It really helps the project to gain momentum and credibility. It's a small contribution back to the project with a big impact.
 
   welcome-pr-opened:
-    if: github.event_name == 'pull_request' && github.event.action == 'opened'
+    if: github.event_name == 'pull_request_target' && github.event.action == 'opened'
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: write
+      issues: write
     steps:
       - uses: wow-actions/welcome@68019c2c271561f63162fea75bb7707ef8a02c85 # To pin v1.3.1
         with:
@@ -58,13 +61,13 @@ jobs:
             
             Thanks and congrats 🎉 for opening your first pull request here! Be sure to follow the pull request template or please update it accordingly.
             
-            Hope you have a great time there! 
+            Hope you have a great time there!
 
   welcome-pr-merged:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
+    if: github.event_name == 'pull_request_target' && github.event.action == 'closed' && github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: write
+      issues: write
     steps:
       - uses: wow-actions/welcome@68019c2c271561f63162fea75bb7707ef8a02c85 # To pin v1.3.1
         with:
